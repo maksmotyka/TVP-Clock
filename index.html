@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+
+<title>Zegar</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<style>
+  body {
+    background: rgb(0, 32, 197);
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+  }
+  .clock {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url(clock/background.png);
+    background-size: contain;
+    background-position: 50% 50%;
+    background-repeat: no-repeat;
+  }
+
+  .clock > * {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .clock > * > * {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-size: contain;
+    background-position: 50% 50%;
+    background-repeat: no-repeat;
+    transform-origin: 50% 50%;
+  }
+
+  .clock .second-hand {
+    z-index: 100;
+  }
+  .clock .second-hand-inner {
+    background-image: url(clock/hand-second.png);
+  }
+
+  .clock .minute-hand {
+    z-index: 99;
+  }
+  .clock .minute-hand-inner {
+    background-image: url(clock/hand-minute.png);
+  }
+
+  .clock .hour-hand {
+    z-index: 98;
+  }
+  .clock .hour-hand-inner {
+    background-image: url(clock/hand-hour.png);
+  }
+</style>
+
+<script>
+  var TRANSFORM_NAME
+
+  function easeOutElastic(t) {
+    var p = .3
+    return Math.pow(2, -10 * t) * Math.sin((t - p / 4) * (2 * Math.PI) / p) + 1
+  }
+
+  function updateClock() {
+    var clockEl = document.body.querySelector('.clock')
+
+    var time = new Date().getTime()
+
+    var milliSeconds = (time % 1000) * 1.0 / 1000
+
+    if (milliSeconds > .5) {
+      milliSeconds = .5 + easeOutElastic((milliSeconds - .5) / .5) * .33
+    } else {
+      milliSeconds = -.17
+    }
+
+    var seconds = Math.floor((time / 1000) % 60)
+    var rotation = (360 / 60) * seconds 
+    clockEl.querySelector('.second-hand-inner').style[TRANSFORM_NAME] = 'rotate(' + rotation + 'deg)'
+
+    var minutes = ((time / 1000 / 60) % 60)
+    var rotation = (360 / 60) * minutes
+    clockEl.querySelector('.minute-hand-inner').style[TRANSFORM_NAME] = 'rotate(' + rotation + 'deg)'
+
+    var hours = ((time / 1000 / 60 / 60) % 1) + new Date().getHours()
+    var rotation = (360 / 12) * hours
+    clockEl.querySelector('.hour-hand-inner').style[TRANSFORM_NAME] = 'rotate(' + rotation + 'deg)'
+
+    window.requestAnimationFrame(updateClock)
+  }
+</script>
+
+<body>
+  <div class='clock'>
+    <div class='hour-hand'><div class='hour-hand-inner'></div></div>
+    <div class='minute-hand'><div class='minute-hand-inner'></div></div>
+    <div class='second-hand'><div class='second-hand-inner'></div></div>
+  </div>
+
+  <script>
+    if (typeof document.body.style.transform == 'undefined') {
+      TRANSFORM_NAME = 'webkitTransform'
+    } else {
+      TRANSFORM_NAME = 'transform'
+    }
+
+    updateClock()
+  </script>
+</body>
